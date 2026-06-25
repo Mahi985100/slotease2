@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Waiting List — SlotEase{% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap items-start justify-between gap-4 mb-6 animate-slide-up">
+  <div>
+    <h1 class="text-3xl font-bold gradient-text">📋 Waiting List</h1>
+    <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">Customers waiting for a slot to open up</p>
+  </div>
+  <div class="flex items-center gap-3">
+    {% if unnotified_count > 0 %}
+    <span class="badge badge-pending">{{ unnotified_count }} pending</span>
+    {% endif %}
+    <span class="badge badge-active">{{ waiting_entries|length }} total</span>
+  </div>
+</div>
+
+<div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background:rgba(129,140,248,0.08);border:1px solid rgba(129,140,248,0.2);">
+  <span style="font-size:20px;margin-top:2px;flex-shrink:0;">🤖</span>
+  <div>
+    <div class="text-sm font-semibold" style="color:#818CF8;">Auto-Notification Active</div>
+    <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">When an appointment is cancelled, the first person on the waiting list for that service/date is automatically notified by email. You can also manually notify anyone using the button below.</div>
+  </div>
+</div>
+
+<!-- Desktop table -->
+<div class="card overflow-hidden hidden sm:block">
+  <div class="table-responsive">
+    <table class="w-full text-sm" style="min-width:700px;">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(45,45,78,0.8);">
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Customer</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Service</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Preferred Date</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Contact</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Added</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Status</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in waiting_entries %}
+        <tr class="table-row animate-fade-in">
+          <td class="p-4">
+            <div class="font-semibold">{{ entry.customer_name }}</div>
+            {% if entry.customer_email %}<div class="text-xs mt-1" style="color:#818CF8;">{{ entry.customer_email }}</div>{% endif %}
+          </td>
+          <td class="p-4">
+            <div>{{ entry.service.name }}</div>
+            {% if entry.staff %}<div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">with {{ entry.staff.name }}</div>{% endif %}
+          </td>
+          <td class="p-4" style="color:#818CF8;">{{ entry.date }}</td>
+          <td class="p-4" style="color:rgba(226,232,240,0.6);">{{ entry.customer_phone }}</td>
+          <td class="p-4 text-xs" style="color:rgba(226,232,240,0.4);">{{ entry.created_at|date:"M j, H:i" }}</td>
+          <td class="p-4">
+            {% if entry.notified %}
+            <span class="badge badge-confirmed">✓ Notified</span>
+            {% else %}
+            <span class="badge badge-pending">Waiting</span>
+            {% endif %}
+          </td>
+          <td class="p-4">
+            <div class="flex gap-2">
+              {% if not entry.notified %}
+              <form method="post" action="{% url 'waiting_list_notify' entry.pk %}">{% csrf_token %}
+                <button class="btn-success cursor-pointer">📨 Notify</button>
+              </form>
+              {% endif %}
+              <form method="post" action="{% url 'waiting_list_delete_entry' entry.pk %}">{% csrf_token %}
+                <button class="btn-danger cursor-pointer" onclick="return confirm('Remove this entry?')">🗑</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="p-16 text-center">
+            <div class="text-5xl mb-4">🎉</div>
+            <div class="text-lg font-semibold gradient-text mb-2">All slots available!</div>
+            <div class="text-sm" style="color:rgba(226,232,240,0.3);">No customers on the waiting list right now.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Mobile cards -->
+<div class="sm:hidden space-y-3">
+  {% for entry in waiting_entries %}
+  <div class="card p-4">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div class="font-semibold">{{ entry.customer_name }}</div>
+        {% if entry.customer_email %}<div class="text-xs" style="color:#818CF8;">{{ entry.customer_email }}</div>{% endif %}
+      </div>
+      {% if entry.notified %}
+      <span class="badge badge-confirmed">✓ Notified</span>
+      {% else %}
+      <span class="badge badge-pending">Waiting</span>
+      {% endif %}
+    </div>
+    <div class="text-xs space-y-1 mb-3" style="color:rgba(226,232,240,0.6);">
+      <div>✂️ {{ entry.service.name }}{% if entry.staff %} · 👤 {{ entry.staff.name }}{% endif %}</div>
+      <div>📅 <span style="color:#818CF8;">{{ entry.date }}</span></div>
+      <div>📞 {{ entry.customer_phone }}</div>
+      <div style="color:rgba(226,232,240,0.4);">Added {{ entry.created_at|date:"M j, H:i" }}</div>
+    </div>
+    <div class="flex gap-2">
+      {% if not entry.notified %}
+      <form method="post" action="{% url 'waiting_list_notify' entry.pk %}">{% csrf_token %}
+        <button class="btn-success cursor-pointer">📨 Notify</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{% url 'waiting_list_delete_entry' entry.pk %}">{% csrf_token %}
+        <button class="btn-danger cursor-pointer" onclick="return confirm('Remove this entry?')">🗑 Remove</button>
+      </form>
+    </div>
+  </div>
+  {% empty %}
+  <div class="card p-12 text-center">
+    <div class="text-5xl mb-4">🎉</div>
+    <div class="text-lg font-semibold gradient-text mb-2">All slots available!</div>
+    <div class="text-sm" style="color:rgba(226,232,240,0.3);">No customers on the waiting list right now.</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

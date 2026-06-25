@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4"><h1 class="text-2xl font-bold">Services</h1>
+{% if can_manage %}<a href="{% url 'service_new' %}" class="bg-gradient-to-r from-[#C084FC] to-[#818CF8] text-white px-3 py-1.5 rounded-lg">+ New service</a>{% endif %}</div>
+<div class="bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg divide-y">
+{% for s in services %}
+<div class="p-3 flex flex-wrap justify-between gap-2 text-sm">
+  <div><span class="font-medium">{{ s.name }}</span> · {{ s.duration_minutes }}m · ${{ s.price }} {% if not s.is_active %}<span class="text-xs text-red-500">(inactive)</span>{% endif %}</div>
+  {% if can_manage %}
+  <div class="space-x-2">
+    <a href="{% url 'service_edit' s.pk %}" class="text-[#C084FC]">Edit</a>
+    <a href="{% url 'service_delete' s.pk %}" class="text-red-600">Delete</a>
+  </div>
+  {% endif %}
+</div>
+{% empty %}<div class="p-3 text-slate-400">No services yet.</div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">{% if instance %}Edit{% else %}New{% endif %} service</h1>
+<form method="post" class="space-y-3 max-w-md bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-6">{% csrf_token %}
+{% for f in form %}<div><label class="block text-sm font-medium">{{ f.label }}</label>{{ f }}{% if f.errors %}<div class="text-xs text-red-600">{{ f.errors|join:", " }}</div>{% endif %}</div>{% endfor %}
+<button class="bg-gradient-to-r from-[#C084FC] to-[#818CF8] text-white px-4 py-2 rounded-lg">Save</button>
+<a href="{% url 'service_list' %}" class="ml-2 text-slate-300">Cancel</a>
+</form>
+<style>input,select,textarea{width:100%;background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid #2D2D4E;border-radius:.5rem;padding:.5rem;}</style>
+{% endblock %}

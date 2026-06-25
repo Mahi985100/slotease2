@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Staff — SlotEase{% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap items-start justify-between gap-4 mb-8 animate-slide-up">
+  <div>
+    <h1 class="text-3xl font-bold gradient-text">👥 Staff</h1>
+    <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">Manage your team</p>
+  </div>
+  <div class="flex flex-wrap items-center gap-3">
+    {% if max_staff != -1 %}
+    <div class="text-xs px-3 py-1 rounded-full" style="background:rgba(45,45,78,0.8);color:rgba(226,232,240,0.5);">
+      {{ active_staff_count }}/{{ max_staff }} staff
+    </div>
+    {% endif %}
+    {% if can_manage %}
+      {% if can_add_staff %}
+        <a href="{% url 'staff_new' %}" class="btn-primary">+ Add Staff</a>
+      {% else %}
+        <a href="{% url 'subscription_plans' %}" class="btn-primary" style="background:linear-gradient(135deg,#FBBF24,#F59E0B);">⬆ Upgrade to Add More</a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% if not can_add_staff %}
+<div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);">
+  <span style="font-size:20px;flex-shrink:0;">⚠️</span>
+  <div>
+    <div class="text-sm font-semibold" style="color:#FBBF24;">Staff limit reached ({{ active_staff_count }}/{{ max_staff }})</div>
+    <div class="text-xs mt-1" style="color:rgba(251,191,36,0.7);">Your {{ staff_plan_name }} plan supports up to {{ max_staff }} active staff members. <a href="{% url 'subscription_plans' %}" style="color:#FBBF24;text-decoration:underline;">Upgrade to add more →</a></div>
+  </div>
+</div>
+{% endif %}
+
+<div class="grid md:grid-cols-2 gap-4">
+  {% for s in staff %}
+  <div class="card p-5 animate-slide-up">
+    <div class="flex items-start justify-between mb-4 gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div style="width:44px;height:44px;flex-shrink:0;background:linear-gradient(135deg,#C084FC,#818CF8);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+        <div class="min-w-0">
+          <div class="font-bold truncate">{{ s.name }}</div>
+          <div class="text-xs mt-0.5" style="color:rgba(226,232,240,0.4);">
+            {% if s.is_active %}<span style="color:#34D399;">● Active</span>{% else %}<span style="color:#F87171;">● Inactive</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% if can_manage %}
+      <div class="flex flex-wrap gap-2 flex-shrink-0">
+        <a href="{% url 'staff_edit' s.pk %}" class="btn-primary" style="font-size:0.75rem;padding:5px 12px;">Edit</a>
+        <a href="{% url 'availability_edit' s.pk %}" class="btn-success" style="font-size:0.75rem;padding:5px 12px;">Hours</a>
+        <a href="{% url 'staff_delete' s.pk %}" class="btn-danger" style="font-size:0.75rem;padding:5px 12px;">Delete</a>
+      </div>
+      {% endif %}
+    </div>
+    {% if s.bio %}
+    <p class="text-xs mb-3" style="color:rgba(226,232,240,0.5);">{{ s.bio|truncatechars:80 }}</p>
+    {% endif %}
+    <div class="text-xs" style="color:rgba(226,232,240,0.4);">
+      <span class="font-semibold" style="color:rgba(226,232,240,0.6);">Services:</span>
+      {% for svc in s.services.all %}
+        <span class="inline-block px-2 py-0.5 rounded-full mr-1 mt-1" style="background:rgba(192,132,252,0.15);color:#C084FC;border:1px solid rgba(192,132,252,0.2);">{{ svc.name }}</span>
+      {% empty %}
+        <span style="color:rgba(226,232,240,0.3);">None assigned</span>
+      {% endfor %}
+    </div>
+    {% if s.availabilities.all %}
+    <div class="mt-3 text-xs" style="color:rgba(226,232,240,0.4);">
+      <span class="font-semibold" style="color:rgba(226,232,240,0.6);">Schedule:</span>
+      {% for av in s.availabilities.all %}
+        <span class="inline-block px-2 py-0.5 rounded mt-1 mr-1" style="background:rgba(52,211,153,0.1);color:#34D399;">{{ av.get_day_of_week_display }} {{ av.start_time|time:"H:i" }}-{{ av.end_time|time:"H:i" }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% empty %}
+  <div class="col-span-2 p-16 text-center card">
+    <div class="text-5xl mb-4">👥</div>
+    <div class="text-lg font-semibold gradient-text mb-2">No staff members yet</div>
+    <div class="text-sm mb-4" style="color:rgba(226,232,240,0.4);">Add your first team member to get started</div>
+    {% if can_manage and can_add_staff %}<a href="{% url 'staff_new' %}" class="btn-primary">+ Add First Staff Member</a>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

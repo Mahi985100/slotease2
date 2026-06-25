@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}My Schedule — SlotEase{% endblock %}
+{% block content %}
+
+<div class="mb-8 animate-slide-up">
+  <div class="flex flex-wrap items-start justify-between gap-3 mb-2">
+    <div>
+      <h1 class="text-3xl font-bold gradient-text">🗓️ My Schedule</h1>
+      <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">{{ staff_member.name }} · Next 14 days</p>
+    </div>
+    <a href="{% url 'leave_request' %}" class="btn-primary">+ Request Leave</a>
+  </div>
+</div>
+
+<div class="grid gap-4">
+  {% for day_info in schedule %}
+  <div class="card overflow-hidden {% if day_info.day == today %}ring-2 ring-purple-500/40{% endif %}">
+    <!-- Day header -->
+    <div class="p-4 flex items-center justify-between" style="border-bottom:1px solid rgba(45,45,78,0.6);">
+      <div class="flex items-center gap-3">
+        <div style="width:44px;height:44px;background:{% if day_info.day == today %}linear-gradient(135deg,#C084FC,#818CF8){% else %}rgba(45,45,78,0.8){% endif %};border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <span style="font-size:9px;font-weight:700;color:{% if day_info.day == today %}rgba(255,255,255,0.7){% else %}rgba(226,232,240,0.4){% endif %};letter-spacing:1px;">{{ day_info.day|date:"D"|upper }}</span>
+          <span style="font-size:16px;font-weight:800;color:{% if day_info.day == today %}white{% else %}#E2E8F0{% endif %};">{{ day_info.day|date:"d" }}</span>
+        </div>
+        <div>
+          <div class="font-semibold">{{ day_info.day|date:"l, F j" }}</div>
+          {% if day_info.day == today %}
+          <div class="flex items-center gap-1 mt-1">
+            <div class="pulse-dot"></div>
+            <span class="text-xs" style="color:#34D399;">Today</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        {% if day_info.availability %}
+          <span style="color:#34D399;">🟢 Working</span>
+          {% for av in day_info.availability %}
+          <span style="color:rgba(226,232,240,0.5);">{{ av.start_time|time:"H:i" }}–{{ av.end_time|time:"H:i" }}</span>
+          {% endfor %}
+        {% else %}
+          <span style="color:rgba(226,232,240,0.3);">🔴 Off</span>
+        {% endif %}
+        <span class="badge badge-active">{{ day_info.appointments|length }} appt{% if day_info.appointments|length != 1 %}s{% endif %}</span>
+      </div>
+    </div>
+
+    <!-- Appointments for the day -->
+    {% if day_info.appointments %}
+    <div>
+      {% for a in day_info.appointments %}
+      <div class="table-row p-4 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <div style="width:3px;height:40px;background:{% if a.status == 'confirmed' %}#34D399{% elif a.status == 'completed' %}#818CF8{% elif a.status == 'cancelled' %}#F87171{% else %}#FBBF24{% endif %};border-radius:2px;"></div>
+          <div>
+            <div class="font-semibold text-sm">{{ a.customer_name }}</div>
+            <div class="text-xs mt-0.5" style="color:rgba(226,232,240,0.5);">{{ a.service.name }}</div>
+            <div class="text-xs mt-0.5" style="color:#818CF8;">🕐 {{ a.start_time|time:"H:i" }} – {{ a.end_time|time:"H:i" }}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="badge badge-{{ a.status }}">{{ a.status }}</span>
+          {% if a.status == 'confirmed' or a.status == 'pending' %}
+          <form method="post" action="{% url 'staff_mark_completed' a.pk %}">{% csrf_token %}
+            <button class="btn-success cursor-pointer">✓ Done</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-xs" style="color:rgba(226,232,240,0.25);">
+      {% if day_info.availability %}No appointments scheduled{% else %}Day off{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
