@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Staff Login — SlotEase{% endblock %}
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center">
+  <div class="w-full max-w-md">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,#C084FC,#818CF8);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">👤</div>
+      <h1 class="text-3xl font-bold gradient-text mb-2">Staff Portal Login</h1>
+      <p class="text-sm" style="color:rgba(226,232,240,0.5);">Sign in with your staff credentials to view your appointments</p>
+    </div>
+
+    <div class="card p-8">
+      <form method="post" class="space-y-4">{% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for f in form %}
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:rgba(226,232,240,0.8);">{{ f.label }}</label>
+          {{ f }}
+          {% if f.errors %}<div class="text-xs mt-1" style="color:#F87171;">{{ f.errors|join:", " }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn-primary w-full py-3 mt-2 text-center" style="display:block;text-align:center;">
+          🔐 Sign In to Staff Portal
+        </button>
+      </form>
+
+      <div class="mt-6 pt-5" style="border-top:1px solid rgba(45,45,78,0.6);">
+        <p class="text-xs text-center" style="color:rgba(226,232,240,0.4);">
+          Are you a salon owner?
+          <a href="{% url 'login' %}" style="color:#C084FC;" class="hover:underline ml-1">Owner Login →</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <a href="/" style="color:rgba(226,232,240,0.3);font-size:0.75rem;" class="hover:underline">← Back to home</a>
+    </div>
+  </div>
+</div>
+<style>
+input, select, textarea {
+  width: 100%;
+  background: rgba(15,15,26,0.6);
+  color: #E2E8F0;
+  border: 1px solid #2D2D4E;
+  border-radius: .5rem;
+  padding: .6rem .75rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #C084FC;
+  box-shadow: 0 0 0 3px rgba(192,132,252,0.1);
+}
+</style>
+{% endblock %}

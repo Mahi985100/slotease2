@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+{% block title %}SlotEase — Modern Salon Booking{% endblock %}
+{% block content %}
+
+<style>
+  /* ── Layout overrides for full-bleed hero ── */
+  main { padding: 0 !important; max-width: 100% !important; }
+
+  /* ── Orbs ── */
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(100px);
+    pointer-events: none; animation: float 9s ease-in-out infinite;
+  }
+
+  /* ── Feature cards ── */
+  .feat-card {
+    background: rgba(22,22,40,0.85);
+    border: 1px solid rgba(55,55,90,0.7);
+    border-radius: 22px; padding: 32px 28px;
+    position: relative; overflow: hidden;
+    transition: transform 0.35s cubic-bezier(.2,.8,.2,1), border-color 0.35s, box-shadow 0.35s;
+  }
+  .feat-card::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(340px circle at var(--mx,50%) var(--my,50%), rgba(192,132,252,0.10), transparent 60%);
+    opacity:0; transition:opacity .3s;
+  }
+  .feat-card:hover::before { opacity:1; }
+  .feat-card:hover { transform:translateY(-7px); border-color:rgba(192,132,252,0.45); box-shadow:0 24px 64px rgba(0,0,0,0.5); }
+  .feat-icon {
+    width:52px; height:52px; border-radius:15px; font-size:26px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px;
+    background: linear-gradient(135deg,rgba(192,132,252,0.18),rgba(129,140,248,0.18));
+    border:1px solid rgba(192,132,252,0.28);
+  }
+
+  /* ── How it works steps ── */
+  .step-num {
+    width:40px; height:40px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:1rem;
+    background: linear-gradient(135deg,#C084FC,#818CF8);
+  }
+  .step-line { width:2px; flex:1; background:linear-gradient(to bottom,rgba(192,132,252,0.5),rgba(192,132,252,0.05)); min-height:40px; }
+
+  /* ── Testimonials ── */
+  .tcard {
+    background:rgba(22,22,40,0.9);
+    border:1px solid rgba(55,55,90,0.7);
+    border-radius:20px; padding:28px;
+  }
+  .stars { color:#FBBF24; font-size:0.9rem; letter-spacing:2px; }
+
+  /* ── Demo pills ── */
+  .demo-pill {
+    background:rgba(22,22,40,0.8); border:1px solid rgba(55,55,90,0.8);
+    padding:14px 20px; border-radius:14px; min-width:210px;
+    display:flex; align-items:center; gap:10px;
+    transition:all .28s;
+  }
+  .demo-pill:hover { border-color:rgba(192,132,252,0.5); transform:translateY(-3px); }
+
+  /* ── CTA gradient border ── */
+  .cta-wrap {
+    border-radius:24px; padding:1px;
+    background: linear-gradient(135deg,rgba(192,132,252,0.5),rgba(129,140,248,0.15),rgba(52,211,153,0.35));
+  }
+  .cta-inner { background:#0F0F1A; border-radius:23px; }
+
+  /* ── Stat ── */
+  .stat-n { font-size:2.8rem; font-weight:800; line-height:1; }
+
+  /* ── Trust bar ── */
+  .trust-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 18px; border-radius:12px;
+    background:rgba(22,22,40,0.7); border:1px solid rgba(55,55,90,0.7);
+    font-size:0.8rem; font-weight:600; color:rgba(226,232,240,0.75);
+  }
+</style>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<section class="relative overflow-hidden" style="padding:60px 20px 80px;">
+  <div class="orb" style="width:520px;height:520px;background:rgba(192,132,252,0.35);top:-140px;left:-160px;"></div>
+  <div class="orb" style="width:420px;height:420px;background:rgba(52,211,153,0.22);top:60px;right:-120px;animation-delay:-4s;"></div>
+  <div class="orb" style="width:260px;height:260px;background:rgba(129,140,248,0.20);bottom:-60px;left:40%;animation-delay:-2s;"></div>
+
+  <div class="relative max-w-5xl mx-auto text-center">
+
+    <h1 style="font-size:clamp(2.8rem,7vw,5.2rem);font-weight:900;line-height:1.08;letter-spacing:-0.03em;margin-bottom:24px;">
+      The booking OS for<br/>
+      <span class="gradient-text">modern salons & spas</span>
+    </h1>
+
+    <p class="text-lg mx-auto mb-10" style="color:rgba(226,232,240,0.55);max-width:580px;line-height:1.7;">
+      Accept online bookings, manage staff schedules, run a waitlist, handle leave,
+      collect reviews — all from one beautiful dashboard.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-wrap justify-center gap-3 mb-12">
+      <a href="{% url 'register' %}" class="btn-primary" style="padding:15px 32px;font-size:1.05rem;border-radius:13px;">
+        🚀 Start free — no card required
+      </a>
+      <a href="#features" style="padding:15px 24px;font-size:1rem;border-radius:13px;border:1px solid rgba(55,55,90,0.9);color:rgba(226,232,240,0.75);font-weight:600;transition:all .2s;" onmouseover="this.style.borderColor='rgba(192,132,252,0.5)'" onmouseout="this.style.borderColor='rgba(55,55,90,0.9)'">
+        Explore features ↓
+      </a>
+      <a href="{% url 'staff_login' %}" style="padding:15px 24px;font-size:1rem;border-radius:13px;border:1px solid rgba(192,132,252,0.35);color:#C084FC;font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(192,132,252,0.08)'" onmouseout="this.style.background='transparent'">
+        👤 Staff Login
+      </a>
+    </div>
+
+    <!-- Trust badges -->
+    <div class="flex flex-wrap justify-center gap-3 mb-14">
+      <span class="trust-badge"><span style="color:#34D399;">✓</span> No credit card needed</span>
+      <span class="trust-badge"><span style="color:#34D399;">✓</span> Setup in under 5 minutes</span>
+      <span class="trust-badge"><span style="color:#34D399;">✓</span> Free plan forever</span>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+      <div>
+        <div class="stat-n gradient-text">10k+</div>
+        <div class="text-xs uppercase tracking-widest mt-2" style="color:rgba(226,232,240,0.4);">Slots booked</div>
+      </div>
+      <div>
+        <div class="stat-n gradient-text">99.9%</div>
+        <div class="text-xs uppercase tracking-widest mt-2" style="color:rgba(226,232,240,0.4);">Uptime</div>
+      </div>
+      <div>
+        <div class="stat-n gradient-text">4.9★</div>
+        <div class="text-xs uppercase tracking-widest mt-2" style="color:rgba(226,232,240,0.4);">Owner rating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ FEATURES ═══════════════════════════ -->
+<section id="features" style="padding:90px 24px;">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#C084FC;">Everything you need</div>
+      <h2 style="font-size:clamp(1.9rem,4vw,2.8rem);font-weight:800;letter-spacing:-0.02em;">Built for real salons, not toy demos</h2>
+      <p class="mt-3 text-sm" style="color:rgba(226,232,240,0.45);max-width:420px;margin-inline:auto;">Three powerful pillars that keep your salon running smoothly every single day.</p>
+    </div>
+
+    <!-- 3 cards row -->
+    <div class="grid md:grid-cols-3 gap-6 mb-6"
+         onmousemove="document.querySelectorAll('.feat-card').forEach(c=>{const r=c.getBoundingClientRect();c.style.setProperty('--mx',(event.clientX-r.left)+'px');c.style.setProperty('--my',(event.clientY-r.top)+'px');})">
+
+      <!-- Staff Portal -->
+      <div class="feat-card">
+        <div class="feat-icon">👥</div>
+        <h3 class="font-bold text-xl mb-3">Staff Portal</h3>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,232,240,0.5);">Each staff member gets their own login. View today's schedule, mark appointments complete, and apply for leave — without touching the owner dashboard.</p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.25);">Individual logins</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.25);">Leave requests</span>
+        </div>
+      </div>
+
+      <!-- Waiting List -->
+      <div class="feat-card" style="border-color:rgba(52,211,153,0.25);">
+        <div class="feat-icon" style="background:linear-gradient(135deg,rgba(52,211,153,0.18),rgba(16,185,129,0.18));border-color:rgba(52,211,153,0.28);">📋</div>
+        <h3 class="font-bold text-xl mb-3">Smart Waiting List</h3>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,232,240,0.5);">When every slot is taken, customers auto-join the waitlist. The moment a cancellation happens, they're notified instantly — no manual work for you.</p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(52,211,153,0.12);color:#34D399;border:1px solid rgba(52,211,153,0.25);">Auto-notify</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(52,211,153,0.12);color:#34D399;border:1px solid rgba(52,211,153,0.25);">Zero effort</span>
+        </div>
+      </div>
+
+      <!-- Booking Flow -->
+      <div class="feat-card" style="border-color:rgba(129,140,248,0.25);">
+        <div class="feat-icon" style="background:linear-gradient(135deg,rgba(129,140,248,0.18),rgba(99,102,241,0.18));border-color:rgba(129,140,248,0.28);">📅</div>
+        <h3 class="font-bold text-xl mb-3">Online Booking Flow</h3>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,232,240,0.5);">4-step guided booking: pick service → choose staff → select time → confirm details. Conflict-safe with database locks so double-bookings never happen.</p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(129,140,248,0.12);color:#818CF8;border:1px solid rgba(129,140,248,0.25);">4-step wizard</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(129,140,248,0.12);color:#818CF8;border:1px solid rgba(129,140,248,0.25);">Conflict-safe</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extra mini-feature strip -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+      {% for item in "1234" %}{% endfor %}
+      <div class="feat-card" style="padding:20px 22px;">
+        <div style="font-size:22px;margin-bottom:10px;">⭐</div>
+        <div class="font-semibold text-sm mb-1">Customer Reviews</div>
+        <p class="text-xs" style="color:rgba(226,232,240,0.45);">Post-visit star ratings with owner replies. Build trust automatically.</p>
+      </div>
+      <div class="feat-card" style="padding:20px 22px;">
+        <div style="font-size:22px;margin-bottom:10px;">🔔</div>
+        <div class="font-semibold text-sm mb-1">Auto Reminders</div>
+        <p class="text-xs" style="color:rgba(226,232,240,0.45);">24h and 1h email reminders. Cut no-shows in half without lifting a finger.</p>
+      </div>
+      <div class="feat-card" style="padding:20px 22px;">
+        <div style="font-size:22px;margin-bottom:10px;">🏖️</div>
+        <div class="font-semibold text-sm mb-1">Leave Management</div>
+        <p class="text-xs" style="color:rgba(226,232,240,0.45);">Staff request leave, owners approve one click. Calendar respects absences.</p>
+      </div>
+      <div class="feat-card" style="padding:20px 22px;">
+        <div style="font-size:22px;margin-bottom:10px;">📊</div>
+        <div class="font-semibold text-sm mb-1">Analytics</div>
+        <p class="text-xs" style="color:rgba(226,232,240,0.45);">Revenue, top services, busiest staff — everything you need to grow.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ HOW IT WORKS ═══════════════════════ -->
+<section style="padding:80px 24px;background:linear-gradient(180deg,rgba(192,132,252,0.04) 0%,transparent 100%);">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-14">
+      <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#818CF8;">Simple process</div>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;letter-spacing:-0.02em;">Up and running in minutes</h2>
+    </div>
+    <div class="space-y-0">
+      {% for step in "1234" %}{% endfor %}
+      <!-- Step 1 -->
+      <div class="flex gap-5 items-start">
+        <div class="flex flex-col items-center">
+          <div class="step-num">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div style="padding-bottom:40px;">
+          <h3 class="font-bold text-lg mb-1">Create your salon account</h3>
+          <p class="text-sm" style="color:rgba(226,232,240,0.5);">Register in 60 seconds — name your business, set your slug, and you're in. No credit card required.</p>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div class="flex gap-5 items-start">
+        <div class="flex flex-col items-center">
+          <div class="step-num">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div style="padding-bottom:40px;">
+          <h3 class="font-bold text-lg mb-1">Add services & staff</h3>
+          <p class="text-sm" style="color:rgba(226,232,240,0.5);">Define your services with prices and durations. Create staff profiles, set their working hours, and assign services they can perform.</p>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div class="flex gap-5 items-start">
+        <div class="flex flex-col items-center">
+          <div class="step-num">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div style="padding-bottom:40px;">
+          <h3 class="font-bold text-lg mb-1">Share your booking link</h3>
+          <p class="text-sm" style="color:rgba(226,232,240,0.5);">Your public booking page is live at <code style="color:#C084FC;background:rgba(192,132,252,0.1);padding:2px 6px;border-radius:5px;">/your-salon/book/</code> — share it on WhatsApp, Instagram, or your website.</p>
+        </div>
+      </div>
+      <!-- Step 4 -->
+      <div class="flex gap-5 items-start">
+        <div class="flex flex-col items-center">
+          <div class="step-num">4</div>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg mb-1">Manage everything from one dashboard</h3>
+          <p class="text-sm" style="color:rgba(226,232,240,0.5);">Approve leave, handle the waitlist, reply to reviews, track revenue — your entire operation in one place.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ TESTIMONIALS ══════════════════════ -->
+<section style="padding:80px 24px;">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#FBBF24;">What owners say</div>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;letter-spacing:-0.02em;">Loved by salon owners</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="tcard">
+        <div class="stars mb-3">★★★★★</div>
+        <p class="text-sm leading-relaxed mb-4" style="color:rgba(226,232,240,0.65);">"We went from scattered WhatsApp bookings to a fully automated system in one afternoon. No-shows dropped by 40% thanks to auto reminders."</p>
+        <div class="flex items-center gap-3">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#C084FC,#818CF8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;">P</div>
+          <div><div class="text-sm font-semibold">Priya S.</div><div class="text-xs" style="color:rgba(226,232,240,0.4);">Glam Studio, Mumbai</div></div>
+        </div>
+      </div>
+      <div class="tcard" style="border-color:rgba(52,211,153,0.25);">
+        <div class="stars mb-3">★★★★★</div>
+        <p class="text-sm leading-relaxed mb-4" style="color:rgba(226,232,240,0.65);">"The staff portal is a game-changer. My team logs in, sees their day, marks jobs done — and I stopped getting 'what time is my next client?' calls."</p>
+        <div class="flex items-center gap-3">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#34D399,#059669);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;">R</div>
+          <div><div class="text-sm font-semibold">Rahul M.</div><div class="text-xs" style="color:rgba(226,232,240,0.4);">The Barber Collective, Pune</div></div>
+        </div>
+      </div>
+      <div class="tcard" style="border-color:rgba(129,140,248,0.25);">
+        <div class="stars mb-3">★★★★★</div>
+        <p class="text-sm leading-relaxed mb-4" style="color:rgba(226,232,240,0.65);">"The waiting list alone paid for itself. A Saturday cancellation used to mean lost revenue — now the next customer in line is auto-notified within seconds."</p>
+        <div class="flex items-center gap-3">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#818CF8,#6366F1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;">A</div>
+          <div><div class="text-sm font-semibold">Anita K.</div><div class="text-xs" style="color:rgba(226,232,240,0.4);">Aura Spa, Bangalore</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ LIVE DEMOS ════════════════════════ -->
+{% if tenants %}
+<section style="padding:80px 24px;background:linear-gradient(180deg,transparent,rgba(192,132,252,0.04),transparent);">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-10">
+      <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color:#C084FC;">Live salons</div>
+      <h2 style="font-size:clamp(1.7rem,4vw,2.4rem);font-weight:800;letter-spacing:-0.02em;">Try a real booking flow</h2>
+      <p class="text-sm mt-2" style="color:rgba(226,232,240,0.4);">These are live SlotEase salons — click to book a real appointment.</p>
+    </div>
+    <div class="flex flex-wrap gap-3 justify-center">
+      {% for t in tenants %}
+      <a href="/{{ t.slug }}/book/" class="demo-pill" style="text-decoration:none;">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#C084FC,#818CF8);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0;">{{ t.name|first|upper }}</div>
+        <div>
+          <div class="font-semibold text-sm">{{ t.name }}</div>
+          <div class="text-xs" style="color:rgba(226,232,240,0.35);">/{{ t.slug }}/book/</div>
+        </div>
+        <span style="margin-left:auto;font-size:0.7rem;color:#34D399;font-weight:600;">Book →</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════════════════ FINAL CTA ════════════════════════ -->
+<section style="padding:60px 20px 80px;">
+  <div class="cta-wrap max-w-4xl mx-auto">
+    <div class="cta-inner p-14 text-center">
+      <div style="font-size:2.5rem;margin-bottom:16px;">✨</div>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;letter-spacing:-0.02em;margin-bottom:16px;">Ready to modernize your salon?</h2>
+      <p class="text-sm mb-8 mx-auto" style="color:rgba(226,232,240,0.5);max-width:440px;line-height:1.7;">Join hundreds of salons using SlotEase to run smoother operations, delight customers, and never lose a booking again.</p>
+      <div class="flex flex-wrap gap-3 justify-center">
+        <a href="{% url 'register' %}" class="btn-primary" style="padding:15px 36px;font-size:1.05rem;border-radius:13px;">Create your free account →</a>
+        <a href="{% url 'login' %}" style="padding:15px 28px;font-size:1rem;border-radius:13px;border:1px solid rgba(55,55,90,0.8);color:rgba(226,232,240,0.65);font-weight:600;transition:all .2s;" onmouseover="this.style.borderColor='rgba(192,132,252,0.4)'" onmouseout="this.style.borderColor='rgba(55,55,90,0.8)'">Already have an account?</a>
+      </div>
+      <p class="text-xs mt-6" style="color:rgba(226,232,240,0.25);">No credit card · Free forever plan · Cancel anytime</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

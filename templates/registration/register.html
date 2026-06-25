@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto bg-[#1A1A2E] rounded-lg border border-[#2D2D4E] p-6">
+  <h1 class="text-2xl font-bold mb-4">Register your business</h1>
+  <form method="post" class="space-y-3">{% csrf_token %}
+    {% for f in form %}
+      <div>
+        <label class="block text-sm font-medium">{{ f.label }}</label>
+        {{ f }}
+        {% if f.errors %}<div class="text-xs text-red-600">{{ f.errors|join:", " }}</div>{% endif %}
+      </div>
+    {% endfor %}
+    <button class="w-full bg-gradient-to-r from-[#C084FC] to-[#818CF8] text-white py-2 rounded-lg">Create account</button>
+  </form>
+  <p class="text-sm mt-3 text-slate-300">Have an account? <a href="{% url 'login' %}" class="text-[#C084FC]">Login</a></p>
+</div>
+<style>input,select,textarea{width:100%;background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid #2D2D4E;border-radius:.5rem;padding:.5rem;}</style>
+{% endblock %}
