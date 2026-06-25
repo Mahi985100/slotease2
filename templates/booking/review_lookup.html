@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Find Your Booking — {{ tenant.name }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div style="width:64px;height:64px;background:linear-gradient(135deg,#C084FC,#818CF8);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">🔍</div>
+    <h1 class="text-3xl font-bold gradient-text mb-2">Rate Your Visit</h1>
+    <p class="text-sm" style="color:rgba(226,232,240,0.5);">Enter your booking details to leave a review for {{ tenant.name }}</p>
+  </div>
+
+  <div class="card p-8 mb-6">
+    <form method="post">{% csrf_token %}
+      <div class="mb-5">
+        <label class="block text-sm font-semibold mb-2" style="color:rgba(226,232,240,0.8);">📱 Mobile Number</label>
+        <input type="tel" name="phone" value="{{ phone|default:'' }}" placeholder="e.g. 9876543210"
+          class="form-input" style="background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid rgba(45,45,78,0.9);border-radius:10px;padding:12px 14px;width:100%;outline:none;"
+          onfocus="this.style.borderColor='#C084FC'" onblur="this.style.borderColor='rgba(45,45,78,0.9)'">
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-semibold mb-2" style="color:rgba(226,232,240,0.8);">🔢 Booking ID <span style="color:rgba(226,232,240,0.4);font-weight:400;">(optional)</span></label>
+        <input type="number" name="booking_id" value="{{ booking_id|default:'' }}" placeholder="e.g. 42"
+          class="form-input" style="background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid rgba(45,45,78,0.9);border-radius:10px;padding:12px 14px;width:100%;outline:none;"
+          onfocus="this.style.borderColor='#C084FC'" onblur="this.style.borderColor='rgba(45,45,78,0.9)'">
+        <p class="text-xs mt-1" style="color:rgba(226,232,240,0.3);">You can find your Booking ID in your confirmation message.</p>
+      </div>
+
+      {% if error %}
+      <div class="mb-4 px-4 py-3 rounded-xl text-sm" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#F87171;">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn-primary w-full py-3" style="display:block;text-align:center;">
+        🔍 Find My Booking
+      </button>
+    </form>
+  </div>
+
+  <!-- Results -->
+  {% if appointments %}
+  <div>
+    <h2 class="font-bold text-lg mb-4" style="color:#C084FC;">✦ Your Completed Appointments</h2>
+    {% for appt in appointments %}
+    <div class="card p-5 mb-3 flex items-center justify-between gap-4">
+      <div>
+        <div class="font-semibold text-sm">{{ appt.service.name }}</div>
+        <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">with {{ appt.staff.name }} · {{ appt.date }}</div>
+        <div class="text-xs mt-1" style="color:rgba(226,232,240,0.3);">#{{ appt.pk }}</div>
+      </div>
+      {% if appt.review %}
+      <div class="flex flex-col items-end gap-1">
+        <span class="text-lg font-bold" style="color:#FBBF24;">{{ appt.review.rating }}★</span>
+        <a href="{% url 'booking_review' slug=tenant.slug pk=appt.pk %}" class="text-xs" style="color:rgba(226,232,240,0.4);">View →</a>
+      </div>
+      {% else %}
+      <a href="{% url 'booking_review' slug=tenant.slug pk=appt.pk %}" class="btn-primary" style="padding:8px 16px;white-space:nowrap;">
+        ⭐ Review
+      </a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="mt-6 text-center">
+    <a href="/{{ tenant.slug }}/book/" style="color:rgba(226,232,240,0.3);font-size:0.75rem;" class="hover:underline">← Book an appointment</a>
+  </div>
+</div>
+{% endblock %}

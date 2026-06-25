@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-1">Availability — {{ staff.name }}</h1>
+<a href="{% url 'staff_list' %}" class="text-sm text-slate-400">&larr; back to staff</a>
+
+<form method="post" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-4 mt-4">{% csrf_token %}
+{% for f in form %}<div><label class="block text-xs font-medium">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+<div class="md:col-span-4"><button class="bg-gradient-to-r from-[#C084FC] to-[#818CF8] text-white px-3 py-1.5 rounded-lg">Add slot</button></div>
+</form>
+{% if form.non_field_errors %}<div class="text-xs text-red-600 mt-1">{{ form.non_field_errors|join:", " }}</div>{% endif %}
+
+<div class="bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg divide-y mt-4">
+{% for a in items %}
+<div class="p-3 flex justify-between text-sm">
+  <div>{{ a.get_day_of_week_display }} · {{ a.start_time|time:"H:i" }}–{{ a.end_time|time:"H:i" }}</div>
+  <form method="post" action="{% url 'availability_delete' a.pk %}">{% csrf_token %}<button class="text-red-600">Delete</button></form>
+</div>
+{% empty %}<div class="p-3 text-slate-400">No availability set.</div>{% endfor %}
+</div>
+<style>input,select{width:100%;background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid #2D2D4E;border-radius:.5rem;padding:.4rem;}</style>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Appointments — SlotEase{% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap justify-between items-center gap-3 mb-6 animate-slide-up">
+  <h1 class="text-2xl font-bold gradient-text">📅 Appointments</h1>
+  {% if can_manage %}
+  <a href="{% url 'appointments_csv' %}" class="btn-success flex items-center gap-2">
+    📥 Export CSV
+  </a>
+  {% endif %}
+</div>
+
+<!-- Filters -->
+<div class="card p-4 mb-6">
+  <form method="get" class="flex flex-wrap gap-3 items-end">
+    <div class="w-full sm:w-auto">
+      <label class="block text-xs mb-1" style="color:rgba(226,232,240,0.4);">Date</label>
+      <input type="date" name="date" value="{{ filters.date }}" class="form-input" style="width:auto;min-width:140px;">
+    </div>
+    <div class="w-full sm:w-auto">
+      <label class="block text-xs mb-1" style="color:rgba(226,232,240,0.4);">Status</label>
+      <select name="status" class="form-input" style="width:auto;min-width:140px;">
+        <option value="">All status</option>
+        <option value="pending"   {% if filters.status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="confirmed" {% if filters.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+        <option value="cancelled" {% if filters.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        <option value="completed" {% if filters.status == 'completed' %}selected{% endif %}>Completed</option>
+      </select>
+    </div>
+    <div class="w-full sm:w-auto">
+      <label class="block text-xs mb-1" style="color:rgba(226,232,240,0.4);">Staff</label>
+      <select name="staff" class="form-input" style="width:auto;min-width:140px;">
+        <option value="">All staff</option>
+        {% for s in staff_list %}<option value="{{ s.id }}" {% if filters.staff == s.id|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn-primary cursor-pointer">Filter</button>
+      <a href="{% url 'appointments' %}" class="text-sm px-3 py-2 rounded-lg" style="color:rgba(226,232,240,0.5);background:rgba(45,45,78,0.5);">Reset</a>
+    </div>
+  </form>
+</div>
+
+<!-- Desktop table -->
+<div class="card overflow-hidden hidden sm:block">
+  <div class="table-responsive">
+    <table class="w-full text-sm" style="min-width:640px;">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(45,45,78,0.8);">
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">When</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Customer</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Service</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Staff</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Status</th>
+          <th class="p-4 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in appointments %}
+        <tr class="table-row animate-fade-in">
+          <td class="p-4">
+            <div style="color:#818CF8;font-weight:500;">{{ a.date }}</div>
+            <div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">{{ a.start_time|time:"H:i" }} – {{ a.end_time|time:"H:i" }}</div>
+          </td>
+          <td class="p-4">
+            <div class="font-semibold">{{ a.customer_name }}</div>
+            <div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">{{ a.customer_phone }}</div>
+          </td>
+          <td class="p-4" style="color:rgba(226,232,240,0.7);">{{ a.service.name }}</td>
+          <td class="p-4" style="color:rgba(226,232,240,0.7);">{{ a.staff.name }}</td>
+          <td class="p-4"><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+          <td class="p-4">
+            {% if can_manage %}
+            <form method="post" action="{% url 'appointment_status' a.pk %}" class="flex gap-2 items-center">{% csrf_token %}
+              <select name="status" class="form-input text-xs" style="width:110px;padding:4px 8px;">
+                <option value="pending"   {% if a.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="confirmed" {% if a.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="cancelled" {% if a.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                <option value="completed" {% if a.status == 'completed' %}selected{% endif %}>Completed</option>
+              </select>
+              <button class="btn-primary cursor-pointer" style="padding:4px 10px;font-size:11px;">Set</button>
+            </form>
+            {% else %}
+            <span class="text-xs" style="color:rgba(226,232,240,0.3);">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="p-12 text-center" style="color:rgba(226,232,240,0.3);">
+          <div class="text-4xl mb-3">📭</div>
+          No appointments found
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Mobile card list -->
+<div class="sm:hidden space-y-3">
+  {% for a in appointments %}
+  <div class="card p-4">
+    <div class="flex justify-between items-start mb-3">
+      <div>
+        <div class="font-semibold">{{ a.customer_name }}</div>
+        <div class="text-xs mt-0.5" style="color:rgba(226,232,240,0.4);">{{ a.customer_phone }}</div>
+      </div>
+      <span class="badge badge-{{ a.status }}">{{ a.status }}</span>
+    </div>
+    <div class="text-xs space-y-1 mb-3" style="color:rgba(226,232,240,0.6);">
+      <div>📅 <span style="color:#818CF8;">{{ a.date }}</span> · {{ a.start_time|time:"H:i" }}–{{ a.end_time|time:"H:i" }}</div>
+      <div>✂️ {{ a.service.name }}</div>
+      <div>👤 {{ a.staff.name }}</div>
+    </div>
+    {% if can_manage %}
+    <form method="post" action="{% url 'appointment_status' a.pk %}" class="flex gap-2 items-center">{% csrf_token %}
+      <select name="status" class="form-input text-xs flex-1" style="padding:6px 8px;">
+        <option value="pending"   {% if a.status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="confirmed" {% if a.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+        <option value="cancelled" {% if a.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        <option value="completed" {% if a.status == 'completed' %}selected{% endif %}>Completed</option>
+      </select>
+      <button class="btn-primary cursor-pointer" style="white-space:nowrap;">Set</button>
+    </form>
+    {% endif %}
+  </div>
+  {% empty %}
+  <div class="card p-12 text-center" style="color:rgba(226,232,240,0.3);">
+    <div class="text-4xl mb-3">📭</div>
+    No appointments found
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

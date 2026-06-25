@@ -1,0 +1,46 @@
+{% extends "booking/_layout.html" %}
+{% block booking_content %}
+
+<div class="mb-6">
+  <h2 class="font-bold text-lg gradient-text mb-1">Choose Date & Time</h2>
+  <p class="text-sm" style="color:rgba(226,232,240,0.5);">With {{ staff.name }}</p>
+</div>
+
+<!-- Date selector -->
+<div class="flex flex-wrap gap-2 mb-6">
+  {% for d in next_days %}
+  <a href="?step=3&service={{ service.id }}&staff={{ staff.id }}&date={{ d|date:'Y-m-d' }}"
+     class="px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+     style="{% if d == day %}background:linear-gradient(135deg,#C084FC,#818CF8);color:white;{% else %}background:rgba(45,45,78,0.6);color:rgba(226,232,240,0.7);border:1px solid rgba(45,45,78,0.8);{% endif %}">
+    {{ d|date:"D" }}<br><span style="font-size:14px;font-weight:800;">{{ d|date:"d" }}</span><br><span style="font-size:9px;">{{ d|date:"M" }}</span>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Time slots -->
+{% if slots %}
+<h3 class="text-sm font-semibold mb-3" style="color:rgba(226,232,240,0.6);">Available times for {{ day|date:"l, F j" }}</h3>
+<div class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-6">
+  {% for t in slots %}
+  <a href="?step=4&service={{ service.id }}&staff={{ staff.id }}&date={{ day|date:'Y-m-d' }}&time={{ t }}"
+     class="text-center rounded-xl py-2.5 text-sm font-semibold transition-all hover:scale-105"
+     style="background:rgba(52,211,153,0.1);color:#34D399;border:1px solid rgba(52,211,153,0.3);">
+    {{ t }}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="mb-6 p-6 rounded-2xl text-center" style="background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.2);">
+  <div class="text-3xl mb-2">😔</div>
+  <div class="font-semibold text-sm mb-1" style="color:#F87171;">No slots available on {{ day|date:"l, F j" }}</div>
+  <div class="text-xs mb-4" style="color:rgba(226,232,240,0.4);">All time slots for this day are booked.</div>
+  <a href="{% url 'waiting_list' tenant.slug %}?service={{ service.id }}&staff={{ staff.id }}&date={{ day|date:'Y-m-d' }}"
+     class="btn-primary inline-block">
+    📋 Join Waiting List — Get Auto-Notified on Cancellation
+  </a>
+</div>
+{% endif %}
+
+<a href="?step=2&service={{ service.id }}" class="text-sm" style="color:rgba(226,232,240,0.4);">← Back to staff selection</a>
+
+{% endblock %}

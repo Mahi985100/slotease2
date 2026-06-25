@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}My Leave Requests — SlotEase{% endblock %}
+{% block content %}
+
+<div class="mb-8 animate-slide-up">
+  <h1 class="text-3xl font-bold gradient-text">🏖️ My Leave Requests</h1>
+  <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">Manage your time-off requests</p>
+</div>
+
+<div class="grid md:grid-cols-2 gap-8">
+  <!-- Submit form -->
+  <div>
+    <h2 class="font-bold text-lg mb-4" style="color:#C084FC;">✦ New Request</h2>
+    <div class="card p-6">
+      <form method="post">{% csrf_token %}
+        {% for field in form %}
+        <div class="mb-4">
+          <label class="block text-sm font-semibold mb-2" style="color:rgba(226,232,240,0.7);">{{ field.label }}</label>
+          {% if field.field.widget.input_type == 'date' %}
+          <input type="date" name="{{ field.html_name }}" id="{{ field.auto_id }}" value="{{ field.value|default:'' }}" class="form-input" {% if field.field.required %}required{% endif %}>
+          {% else %}
+          <textarea name="{{ field.html_name }}" id="{{ field.auto_id }}" rows="3" class="form-input" placeholder="{{ field.label }}">{{ field.value|default:'' }}</textarea>
+          {% endif %}
+          {% if field.errors %}<p class="text-xs mt-1" style="color:#F87171;">{{ field.errors|join:", " }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn-primary w-full py-3 cursor-pointer mt-2">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- My requests -->
+  <div>
+    <h2 class="font-bold text-lg mb-4" style="color:#818CF8;">📋 My Requests</h2>
+    <div class="card overflow-hidden">
+      {% for lr in leave_requests %}
+      <div class="table-row p-4 flex justify-between items-start">
+        <div>
+          <div class="font-semibold text-sm">{{ lr.start_date }} → {{ lr.end_date }}</div>
+          {% if lr.reason %}<div class="text-xs mt-2" style="color:rgba(226,232,240,0.4);">{{ lr.reason|truncatechars:60 }}</div>{% endif %}
+          <div class="text-xs mt-2" style="color:rgba(226,232,240,0.3);">Submitted {{ lr.created_at|date:"M j, Y" }}</div>
+        </div>
+        <span class="badge badge-{{ lr.status }} ml-4">{{ lr.status }}</span>
+      </div>
+      {% empty %}
+      <div class="p-12 text-center">
+        <div class="text-4xl mb-3">🌴</div>
+        <div style="color:rgba(226,232,240,0.3);" class="text-sm">No leave requests yet.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

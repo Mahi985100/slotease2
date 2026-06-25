@@ -1,0 +1,8 @@
+Django==4.2.16
+psycopg2-binary==2.9.9
+dj-database-url==2.2.0
+python-decouple==3.8
+gunicorn==22.0.0
+# Optional: needed only if using Google Calendar service-account integration
+# PyJWT==2.8.0
+# cryptography==42.0.0

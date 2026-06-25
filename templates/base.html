@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}SlotEase{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      colors: {
+        primary: '#C084FC', secondary: '#818CF8', accent: '#34D399', gold: '#FBBF24',
+        dark: '#0F0F1A', darkcard: '#1A1A2E', darkborder: '#2D2D4E',
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite alternate',
+        'slide-up': 'slideUp 0.4s ease-out',
+        'fade-in': 'fadeIn 0.3s ease-out',
+      },
+      keyframes: {
+        float: { '0%,100%': {transform:'translateY(0)'}, '50%': {transform:'translateY(-8px)'} },
+        glow: { '0%': {boxShadow:'0 0 5px rgba(192,132,252,0.3)'}, '100%': {boxShadow:'0 0 20px rgba(192,132,252,0.6)'} },
+        slideUp: { '0%': {transform:'translateY(12px)',opacity:'0'}, '100%': {transform:'translateY(0)',opacity:'1'} },
+        fadeIn: { '0%': {opacity:'0'}, '100%': {opacity:'1'} },
+      }
+    }
+  }
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    background: #0F0F1A;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(192,132,252,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(129,140,248,0.08) 0%, transparent 60%);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    color: #E2E8F0;
+  }
+  .glass { background: rgba(26,26,46,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(45,45,78,0.8); }
+  .glass-light { background: rgba(26,26,46,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(45,45,78,0.6); }
+  .card { background: rgba(26,26,46,0.85); border: 1px solid rgba(45,45,78,0.9); border-radius: 16px; transition: all 0.3s ease; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .btn-primary { background: linear-gradient(135deg,#C084FC,#818CF8); color: white; border: none; border-radius: 10px; padding: 8px 18px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(192,132,252,0.3); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(192,132,252,0.5); }
+  .btn-success { background: linear-gradient(135deg,#34D399,#059669); color: white; border-radius: 10px; padding: 6px 14px; font-weight: 600; font-size: 0.75rem; transition: all 0.2s ease; }
+  .btn-danger { background: linear-gradient(135deg,#F87171,#DC2626); color: white; border-radius: 10px; padding: 6px 14px; font-weight: 600; font-size: 0.75rem; transition: all 0.2s ease; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .badge-pending   { background: rgba(251,191,36,0.15); color: #FBBF24; border: 1px solid rgba(251,191,36,0.3); }
+  .badge-confirmed { background: rgba(52,211,153,0.15); color: #34D399; border: 1px solid rgba(52,211,153,0.3); }
+  .badge-cancelled { background: rgba(248,113,113,0.15); color: #F87171; border: 1px solid rgba(248,113,113,0.3); }
+  .badge-completed { background: rgba(129,140,248,0.15); color: #818CF8; border: 1px solid rgba(129,140,248,0.3); }
+  .badge-approved  { background: rgba(52,211,153,0.15); color: #34D399; border: 1px solid rgba(52,211,153,0.3); }
+  .badge-rejected  { background: rgba(248,113,113,0.15); color: #F87171; border: 1px solid rgba(248,113,113,0.3); }
+  .badge-active    { background: rgba(192,132,252,0.15); color: #C084FC; border: 1px solid rgba(192,132,252,0.3); }
+  .nav-link { color: rgba(226,232,240,0.7); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 6px 12px; border-radius: 8px; transition: all 0.2s ease; }
+  .nav-link:hover { color: #E2E8F0; background: rgba(192,132,252,0.1); }
+  .nav-link.active { color: #C084FC; background: rgba(192,132,252,0.15); }
+  .form-input { background: rgba(15,15,26,0.6); border: 1px solid rgba(45,45,78,0.9); border-radius: 10px; padding: 10px 14px; color: #E2E8F0; font-size: 0.875rem; width: 100%; transition: border-color 0.2s; outline: none; }
+  .form-input:focus { border-color: #C084FC; box-shadow: 0 0 0 3px rgba(192,132,252,0.1); }
+  select.form-input option { background: #1A1A2E; }
+  .gradient-text { background: linear-gradient(135deg,#C084FC,#818CF8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-card { background: rgba(26,26,46,0.85); border: 1px solid rgba(45,45,78,0.9); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; transition: all 0.3s; }
+  .stat-card::before { content:''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,#C084FC,#818CF8); }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+  .divider { border-color: rgba(45,45,78,0.7); }
+  .table-row { border-bottom: 1px solid rgba(45,45,78,0.5); transition: background 0.15s; }
+  .table-row:hover { background: rgba(192,132,252,0.04); }
+  .pulse-dot { width:8px; height:8px; background:#34D399; border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0F0F1A; }
+  ::-webkit-scrollbar-thumb { background: rgba(192,132,252,0.3); border-radius: 3px; }
+
+  /* ── Mobile nav ── */
+  #mobile-menu { display: none; }
+  #mobile-menu.open { display: flex; }
+  .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: #E2E8F0; }
+  @media (max-width: 767px) {
+    .desktop-nav { display: none !important; }
+    .hamburger { display: flex; align-items: center; justify-content: center; }
+    #mobile-menu {
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: rgba(15,15,26,0.98);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(45,45,78,0.8);
+      padding: 12px 16px 16px;
+      gap: 4px;
+      z-index: 100;
+    }
+    #mobile-menu .nav-link { display: block; padding: 10px 14px; font-size: 0.95rem; }
+    #mobile-menu form { width: 100%; }
+    #mobile-menu form button.nav-link { width: 100%; text-align: left; }
+    #mobile-menu .btn-primary { display: block; text-align: center; padding: 10px 18px; margin-top: 4px; }
+    .main-content { padding-left: 16px !important; padding-right: 16px !important; }
+  }
+
+  /* ── Responsive table wrapper ── */
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 640px) {
+    .table-responsive table { min-width: 560px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top navbar -->
+<header class="glass sticky top-0 z-50" style="border-bottom:1px solid rgba(45,45,78,0.8);">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between relative">
+    <a href="/" class="flex items-center gap-2 group">
+      <div style="width:32px;height:32px;background:linear-gradient(135deg,#C084FC,#818CF8);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+        <span style="color:white;font-weight:800;font-size:14px;">S</span>
+      </div>
+      <span class="font-bold text-lg gradient-text">SlotEase</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="desktop-nav flex items-center gap-1 flex-wrap">
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="nav-link">🏠 Dashboard</a>
+        {% if role == 'staff' %}
+          <a href="{% url 'appointments' %}" class="nav-link">📅 My Appointments</a>
+          <a href="{% url 'staff_schedule' %}" class="nav-link">🗓️ My Schedule</a>
+          <a href="{% url 'leave_request' %}" class="nav-link">🏖️ My Leave</a>
+        {% else %}
+          <a href="{% url 'analytics' %}" class="nav-link">📊 Analytics</a>
+          <a href="{% url 'appointments' %}" class="nav-link">📅 Appointments</a>
+          <a href="{% url 'service_list' %}" class="nav-link">✂️ Services</a>
+          <a href="{% url 'staff_list' %}" class="nav-link">👥 Staff</a>
+          <a href="{% url 'reviews_list' %}" class="nav-link">⭐ Reviews</a>
+          <a href="{% url 'leave_approvals' %}" class="nav-link">🏖️ Leave</a>
+          <a href="{% url 'waiting_list_manage' %}" class="nav-link">📋 Waitlist</a>
+          <a href="{% url 'subscription_plans' %}" class="nav-link" style="color:#C084FC;">💎 Plans</a>
+        {% endif %}
+        <form action="{% url 'logout' %}" method="post" class="inline">{% csrf_token %}
+          <button class="nav-link" style="background:rgba(248,113,113,0.1);color:#F87171;border:1px solid rgba(248,113,113,0.2);">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="nav-link">Login</a>
+        <a href="{% url 'staff_login' %}" class="nav-link" style="color:#C084FC;">👤 Staff Login</a>
+        <a href="{% url 'register' %}" class="btn-primary">Get Started</a>
+      {% endif %}
+    </nav>
+
+    <!-- Hamburger button (mobile only) -->
+    <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu" aria-expanded="false">
+      <svg id="ham-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+      <svg id="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" role="navigation" aria-label="Mobile navigation">
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="nav-link">🏠 Dashboard</a>
+        {% if role == 'staff' %}
+          <a href="{% url 'appointments' %}" class="nav-link">📅 My Appointments</a>
+          <a href="{% url 'staff_schedule' %}" class="nav-link">🗓️ My Schedule</a>
+          <a href="{% url 'leave_request' %}" class="nav-link">🏖️ My Leave</a>
+        {% else %}
+          <a href="{% url 'analytics' %}" class="nav-link">📊 Analytics</a>
+          <a href="{% url 'appointments' %}" class="nav-link">📅 Appointments</a>
+          <a href="{% url 'service_list' %}" class="nav-link">✂️ Services</a>
+          <a href="{% url 'staff_list' %}" class="nav-link">👥 Staff</a>
+          <a href="{% url 'reviews_list' %}" class="nav-link">⭐ Reviews</a>
+          <a href="{% url 'leave_approvals' %}" class="nav-link">🏖️ Leave</a>
+          <a href="{% url 'waiting_list_manage' %}" class="nav-link">📋 Waitlist</a>
+          <a href="{% url 'subscription_plans' %}" class="nav-link" style="color:#C084FC;">💎 Plans</a>
+        {% endif %}
+        <form action="{% url 'logout' %}" method="post">{% csrf_token %}
+          <button class="nav-link" style="background:rgba(248,113,113,0.1);color:#F87171;border:1px solid rgba(248,113,113,0.2);">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="nav-link">Login</a>
+        <a href="{% url 'staff_login' %}" class="nav-link" style="color:#C084FC;">👤 Staff Login</a>
+        <a href="{% url 'register' %}" class="btn-primary">Get Started</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main class="main-content max-w-7xl mx-auto px-4 py-8 animate-fade-in">
+  {% if messages %}
+    {% for m in messages %}
+      <div class="mb-4 p-4 rounded-xl text-sm font-medium flex items-center gap-3"
+           style="background:{% if 'error' in m.tags or 'warning' in m.tags %}rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#F87171{% else %}rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:#34D399{% endif %};">
+        <span>{% if 'error' in m.tags or 'warning' in m.tags %}⚠{% else %}✓{% endif %}</span> {{ m }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<script>
+  const btn = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('mobile-menu');
+  const hamIcon = document.getElementById('ham-icon');
+  const closeIcon = document.getElementById('close-icon');
+  btn.addEventListener('click', () => {
+    const isOpen = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen);
+    hamIcon.style.display = isOpen ? 'none' : 'block';
+    closeIcon.style.display = isOpen ? 'block' : 'none';
+  });
+  // Close menu on nav link click
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('open');
+    hamIcon.style.display = 'block';
+    closeIcon.style.display = 'none';
+  }));
+</script>
+</body>
+</html>

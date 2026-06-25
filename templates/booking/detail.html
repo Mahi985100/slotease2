@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Booking Confirmed — {{ tenant.name }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+  <div class="text-center mb-6">
+    <div class="text-4xl mb-2">✅</div>
+    <h1 class="text-2xl font-bold">Booking Confirmed!</h1>
+    <p class="text-slate-400 text-sm mt-1">{{ tenant.name }}</p>
+  </div>
+
+  <div class="bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-5 space-y-3 mb-6">
+    <div class="flex justify-between text-sm">
+      <span class="text-slate-400">Service</span>
+      <span class="font-medium">{{ appt.service.name }}</span>
+    </div>
+    <div class="flex justify-between text-sm">
+      <span class="text-slate-400">Staff</span>
+      <span class="font-medium">{{ appt.staff.name }}</span>
+    </div>
+    <div class="flex justify-between text-sm">
+      <span class="text-slate-400">Date</span>
+      <span class="font-medium">{{ appt.date }}</span>
+    </div>
+    <div class="flex justify-between text-sm">
+      <span class="text-slate-400">Time</span>
+      <span class="font-medium">{{ appt.start_time|time:"H:i" }} – {{ appt.end_time|time:"H:i" }}</span>
+    </div>
+    <div class="flex justify-between text-sm">
+      <span class="text-slate-400">Status</span>
+      <span class="capitalize font-medium text-[#C084FC]">{{ appt.status }}</span>
+    </div>
+    {% if appt.customer_email %}
+    <div class="pt-2 border-t border-[#2D2D4E] text-xs text-slate-400">
+      📧 Reminder emails will be sent to {{ appt.customer_email }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Add to Google Calendar -->
+  {% with start_iso=appt.date|date:"Ymd" start_time=appt.start_time|time:"His" end_time=appt.end_time|time:"His" %}
+  <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ appt.service.name|urlencode }}+at+{{ tenant.name|urlencode }}&dates={{ start_iso }}T{{ start_time }}/{{ start_iso }}T{{ end_time }}&details=Staff:+{{ appt.staff.name|urlencode }}&location={{ tenant.address|urlencode }}"
+     target="_blank"
+     class="block w-full text-center bg-[#1A1A2E] border border-[#2D2D4E] text-slate-200 py-2.5 rounded-lg text-sm font-medium mb-3 hover:bg-[#2D2D4E]">
+    📅 Add to Google Calendar
+  </a>
+  {% endwith %}
+
+  {% if appt.status == 'completed' %}
+    {% if appt.review %}
+    <a href="{% url 'booking_review' slug=tenant.slug pk=appt.pk %}" class="block w-full text-center bg-[#1A1A2E] border border-[#2D2D4E] py-2.5 rounded-lg text-sm">View Your Review</a>
+    {% else %}
+    <a href="{% url 'booking_review' slug=tenant.slug pk=appt.pk %}" class="block w-full text-center bg-gradient-to-r from-[#C084FC] to-[#818CF8] text-white py-2.5 rounded-lg text-sm font-medium">⭐ Leave a Review</a>
+    {% endif %}
+  {% endif %}
+
+  <a href="/{{ tenant.slug }}/book/" class="block w-full text-center text-[#C084FC] text-sm mt-3 underline">Book another appointment</a>
+  <a href="{% url 'review_lookup' slug=tenant.slug %}" class="block w-full text-center text-slate-500 text-xs mt-2 hover:underline">⭐ Rate your visit</a>
+</div>
+{% endblock %}

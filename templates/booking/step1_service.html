@@ -1,0 +1,12 @@
+{% extends "booking/_layout.html" %}
+{% block inner %}
+<h2 class="font-semibold mb-3">Choose a service</h2>
+<div class="grid gap-3">
+{% for s in services %}
+<a href="?step=2&service={{ s.id }}" class="block bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-4 hover:border-[#C084FC]">
+  <div class="font-medium">{{ s.name }}</div>
+  <div class="text-sm text-slate-400">{{ s.duration_minutes }} min · ${{ s.price }}</div>
+</a>
+{% empty %}<p class="text-slate-400">No services available.</p>{% endfor %}
+</div>
+{% endblock %}

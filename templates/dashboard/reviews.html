@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Reviews — SlotEase{% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap items-start justify-between gap-4 mb-8 animate-slide-up">
+  <div>
+    <h1 class="text-3xl font-bold gradient-text">⭐ Customer Reviews</h1>
+    <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">Customer feedback and ratings</p>
+  </div>
+  {% if overall_avg %}
+  <div class="stat-card text-center" style="min-width:120px;">
+    <div class="text-4xl font-extrabold" style="color:#FBBF24;">{{ overall_avg }}</div>
+    <div class="flex justify-center gap-0.5 my-2">
+      {% for i in "12345" %}
+        {% if forloop.counter <= overall_avg %}
+        <span style="color:#FBBF24;font-size:16px;">★</span>
+        {% else %}
+        <span style="color:rgba(226,232,240,0.2);font-size:16px;">★</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="text-xs" style="color:rgba(226,232,240,0.4);">Overall average</div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="space-y-4">
+{% for review in reviews %}
+<div class="card p-6 animate-slide-up">
+  <div class="flex items-start justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <div style="width:44px;height:44px;background:linear-gradient(135deg,rgba(192,132,252,0.2),rgba(129,140,248,0.2));border:1px solid rgba(192,132,252,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+      <div>
+        <div class="font-semibold">{{ review.appointment.customer_name }}</div>
+        <div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">{{ review.appointment.service.name }} with {{ review.appointment.staff.name }} · {{ review.appointment.date }}</div>
+      </div>
+    </div>
+    <div>
+      <div class="flex gap-0.5 justify-end">
+        {% for i in "12345" %}
+        <span style="font-size:18px;{% if forloop.counter <= review.rating %}color:#FBBF24;{% else %}color:rgba(226,232,240,0.15);{% endif %}">★</span>
+        {% endfor %}
+      </div>
+      <div class="text-xs text-right mt-1" style="color:rgba(226,232,240,0.3);">{{ review.created_at|date:"M j, Y" }}</div>
+    </div>
+  </div>
+
+  {% if review.comment %}
+  <div class="px-4 py-3 rounded-xl mb-4" style="background:rgba(15,15,26,0.5);border-left:3px solid rgba(192,132,252,0.4);">
+    <p class="text-sm italic" style="color:rgba(226,232,240,0.7);">"{{ review.comment }}"</p>
+  </div>
+  {% endif %}
+
+  {% if review.owner_reply %}
+  <div class="px-4 py-3 rounded-xl" style="background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.2);">
+    <div class="flex items-center gap-2 mb-1">
+      <span style="color:#34D399;font-size:12px;font-weight:700;">✓ Owner Reply</span>
+    </div>
+    <p class="text-sm" style="color:rgba(226,232,240,0.7);">{{ review.owner_reply }}</p>
+  </div>
+  {% endif %}
+
+  {% if not review.owner_reply %}
+  <details class="mt-3">
+    <summary class="text-sm cursor-pointer font-semibold" style="color:#C084FC;">💬 Reply to this review</summary>
+    <form method="post" action="{% url 'review_reply' review.pk %}" class="mt-3">{% csrf_token %}
+      <textarea name="owner_reply" rows="3" class="form-input mb-3" placeholder="Write a professional reply..."></textarea>
+      <button class="btn-primary cursor-pointer">Post Reply</button>
+    </form>
+  </details>
+  {% endif %}
+</div>
+{% empty %}
+<div class="card p-16 text-center">
+  <div class="text-5xl mb-4">⭐</div>
+  <div class="text-xl font-bold gradient-text mb-2">No reviews yet</div>
+  <div class="text-sm" style="color:rgba(226,232,240,0.3);">Reviews appear after customers complete their appointments and leave feedback.</div>
+</div>
+{% endfor %}
+</div>
+
+{% endblock %}

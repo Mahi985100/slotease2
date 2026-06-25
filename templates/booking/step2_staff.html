@@ -1,0 +1,13 @@
+{% extends "booking/_layout.html" %}
+{% block inner %}
+<h2 class="font-semibold mb-3">Choose a staff member for <span class="text-[#C084FC]">{{ service.name }}</span></h2>
+<div class="grid gap-3">
+{% for s in staff_list %}
+<a href="?step=3&service={{ service.id }}&staff={{ s.id }}" class="block bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-4 hover:border-[#C084FC]">
+  <div class="font-medium">{{ s.name }}</div>
+  {% if s.bio %}<div class="text-sm text-slate-400">{{ s.bio }}</div>{% endif %}
+</a>
+{% empty %}<p class="text-slate-400">No staff available for this service.</p>{% endfor %}
+</div>
+<a href="?step=1" class="text-sm text-slate-400 mt-3 inline-block">&larr; back</a>
+{% endblock %}

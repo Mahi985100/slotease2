@@ -1,0 +1,13 @@
+{% extends "booking/_layout.html" %}
+{% block inner %}
+<h2 class="font-semibold mb-3">Your details</h2>
+<div class="bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-4 mb-4 text-sm">
+  <div><strong>{{ service.name }}</strong> with {{ staff.name }}</div>
+  <div class="text-slate-400">{{ day }} at {{ time }} · {{ service.duration_minutes }} min · ${{ service.price }}</div>
+</div>
+<form method="post" class="space-y-3 bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-4">{% csrf_token %}
+{% for f in form %}<div><label class="block text-sm font-medium">{{ f.label }}</label>{{ f }}{% if f.errors %}<div class="text-xs text-red-600">{{ f.errors|join:", " }}</div>{% endif %}</div>{% endfor %}
+<button class="bg-gradient-to-r from-[#C084FC] to-[#818CF8] text-white px-5 py-2 rounded-lg">Confirm booking</button>
+</form>
+<style>input,textarea{width:100%;background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid #2D2D4E;border-radius:.5rem;padding:.5rem;}</style>
+{% endblock %}

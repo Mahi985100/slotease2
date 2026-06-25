@@ -1,0 +1,46 @@
+{% extends "booking/_layout.html" %}
+{% block booking_content %}
+
+<div class="text-center mb-8">
+  <div class="text-5xl mb-4">📋</div>
+  <h2 class="text-2xl font-bold gradient-text">Join the Waiting List</h2>
+  <p class="text-sm mt-2" style="color:rgba(226,232,240,0.5);">
+    We'll automatically notify you the moment a slot opens up{% if service %} for <strong>{{ service.name }}</strong>{% endif %}{% if date %} on {{ date }}{% endif %}.
+  </p>
+</div>
+
+<div class="mb-6 p-4 rounded-xl flex items-center gap-3" style="background:rgba(129,140,248,0.08);border:1px solid rgba(129,140,248,0.2);">
+  <span style="font-size:20px;">🔔</span>
+  <div class="text-sm" style="color:rgba(226,232,240,0.6);">You'll receive an <strong style="color:#818CF8;">automatic email notification</strong> as soon as a cancellation opens up. Make sure to provide your email below.</div>
+</div>
+
+<div class="card p-6">
+  <form method="post">{% csrf_token %}
+    {% for field in form %}
+    <div class="mb-4">
+      <label class="block text-sm font-semibold mb-2" style="color:rgba(226,232,240,0.7);">{{ field.label }}</label>
+      {% if field.field.widget.input_type == 'date' %}
+        <input type="date" name="{{ field.html_name }}" id="{{ field.auto_id }}" value="{{ field.value|default:'' }}" class="form-input" {% if field.field.required %}required{% endif %}>
+      {% elif field.field.widget.input_type == 'select' %}
+        <select name="{{ field.html_name }}" id="{{ field.auto_id }}" class="form-input">
+          {% for val, label in field.field.choices %}
+            <option value="{{ val }}" {% if field.value|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      {% elif field.field.widget.input_type == 'textarea' %}
+        <textarea name="{{ field.html_name }}" id="{{ field.auto_id }}" rows="3" class="form-input">{{ field.value|default:'' }}</textarea>
+      {% else %}
+        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.auto_id }}" value="{{ field.value|default:'' }}" class="form-input" {% if field.field.required %}required{% endif %} placeholder="{{ field.label }}">
+      {% endif %}
+      {% if field.errors %}<p class="text-xs mt-1" style="color:#F87171;">{{ field.errors|join:", " }}</p>{% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn-primary w-full py-3 cursor-pointer mt-2">📋 Join Waiting List</button>
+  </form>
+</div>
+
+<div class="mt-4 text-center">
+  <a href="{% url 'book' tenant.slug %}" style="color:rgba(226,232,240,0.4);font-size:0.875rem;">← Back to booking</a>
+</div>
+
+{% endblock %}

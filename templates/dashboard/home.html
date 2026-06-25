@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SlotEase{% endblock %}
+{% block content %}
+
+{% if is_staff_view %}
+<!-- ===== STAFF PORTAL ===== -->
+<div class="mb-8 animate-slide-up">
+  <div class="flex items-center gap-3 mb-2">
+    <div style="width:48px;height:48px;background:linear-gradient(135deg,#C084FC,#818CF8);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">👤</div>
+    <div>
+      <h1 class="text-2xl font-bold gradient-text">Staff Portal</h1>
+      <p class="text-sm" style="color:rgba(226,232,240,0.5);">{{ tenant.name }} · <span class="badge badge-active capitalize">{{ role }}</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- Staff quick stats -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="stat-card text-center">
+    <div class="text-3xl font-bold gradient-text">{{ today_appts|length }}</div>
+    <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">Today's Appointments</div>
+  </div>
+  <div class="stat-card text-center">
+    <div class="text-3xl font-bold" style="color:#34D399;">{{ upcoming_appts|length }}</div>
+    <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">Upcoming</div>
+  </div>
+  <div class="stat-card text-center">
+    {% with pending=leave_requests|length %}
+    <div class="text-3xl font-bold" style="color:#FBBF24;">{{ pending }}</div>
+    {% endwith %}
+    <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">Leave Requests</div>
+  </div>
+  <div class="stat-card text-center">
+    <a href="{% url 'staff_schedule' %}" class="block">
+      <div class="text-3xl">🗓️</div>
+      <div class="text-xs mt-1" style="color:#C084FC;font-weight:600;">View Schedule</div>
+    </a>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6 mb-8">
+
+  <!-- Today's appointments -->
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold flex items-center gap-2">
+        <span style="background:linear-gradient(135deg,#FBBF24,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">📅 Today's Appointments</span>
+      </h2>
+      <div class="pulse-dot"></div>
+    </div>
+    <div class="card overflow-hidden">
+      {% for a in today_appts %}
+      <div class="table-row p-4 animate-slide-up">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="font-semibold text-sm">{{ a.customer_name }}</div>
+            <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">{{ a.service.name }}</div>
+            <div class="text-xs mt-1" style="color:#818CF8;">🕐 {{ a.start_time|time:"H:i" }} – {{ a.end_time|time:"H:i" }}</div>
+            <div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">📞 {{ a.customer_phone }}</div>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <span class="badge badge-{{ a.status }}">{{ a.status }}</span>
+            {% if a.status == 'confirmed' or a.status == 'pending' %}
+            <form method="post" action="{% url 'staff_mark_completed' a.pk %}">{% csrf_token %}
+              <button class="btn-success cursor-pointer">✓ Complete</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="p-8 text-center">
+        <div class="text-4xl mb-3">🎉</div>
+        <div style="color:rgba(226,232,240,0.4);" class="text-sm">No appointments today — enjoy your free time!</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Upcoming appointments -->
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold" style="background:linear-gradient(135deg,#818CF8,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🔜 Upcoming</h2>
+      <a href="{% url 'appointments' %}" class="text-xs" style="color:#C084FC;">View all →</a>
+    </div>
+    <div class="card overflow-hidden">
+      {% for a in upcoming_appts %}
+      <div class="table-row p-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-semibold text-sm">{{ a.customer_name }}</div>
+            <div class="text-xs mt-1" style="color:rgba(226,232,240,0.5);">{{ a.service.name }}</div>
+            <div class="text-xs mt-1" style="color:#34D399;">📅 {{ a.date }} · {{ a.start_time|time:"H:i" }}</div>
+          </div>
+          <span class="badge badge-{{ a.status }}">{{ a.status }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="p-8 text-center">
+        <div class="text-4xl mb-3">📭</div>
+        <div style="color:rgba(226,232,240,0.4);" class="text-sm">No upcoming appointments scheduled.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Leave management -->
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold" style="background:linear-gradient(135deg,#34D399,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🏖️ My Leave Requests</h2>
+    <a href="{% url 'leave_request' %}" class="btn-primary">+ Request Leave</a>
+  </div>
+  <div class="card overflow-hidden">
+    {% for lr in leave_requests %}
+    <div class="table-row p-4 flex justify-between items-center">
+      <div>
+        <div class="text-sm font-semibold">{{ lr.start_date }} → {{ lr.end_date }}</div>
+        {% if lr.reason %}<div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">{{ lr.reason|truncatechars:50 }}</div>{% endif %}
+      </div>
+      <span class="badge badge-{{ lr.status }}">{{ lr.status }}</span>
+    </div>
+    {% empty %}
+    <div class="p-8 text-center">
+      <div class="text-4xl mb-3">🌴</div>
+      <div style="color:rgba(226,232,240,0.4);" class="text-sm">No leave requests yet.</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% else %}
+<!-- ===== OWNER/MANAGER DASHBOARD ===== -->
+<div class="mb-8">
+  <div class="flex flex-wrap items-center gap-3 mb-1">
+    <h1 class="text-2xl sm:text-3xl font-bold gradient-text">{{ tenant.name }}</h1>
+    <span class="badge badge-active capitalize">{{ role }}</span>
+  </div>
+  <p class="text-sm" style="color:rgba(226,232,240,0.4);">
+    🔗 Public booking: <a class="hover:underline break-all" style="color:#C084FC;" href="/{{ tenant.slug }}/book/">/{{ tenant.slug }}/book/</a>
+  </p>
+</div>
+
+<!-- KPI cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+  <div class="stat-card" style="--accent:#C084FC;">
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-xs uppercase tracking-widest" style="color:rgba(226,232,240,0.4);">Today's Appointments</div>
+      <div style="width:36px;height:36px;background:rgba(192,132,252,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📅</div>
+    </div>
+    <div class="text-4xl font-bold gradient-text">{{ today_count }}</div>
+    <div class="text-xs mt-2" style="color:rgba(226,232,240,0.4);">Scheduled for today</div>
+  </div>
+  <div class="stat-card">
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-xs uppercase tracking-widest" style="color:rgba(226,232,240,0.4);">Last 7 Days</div>
+      <div style="width:36px;height:36px;background:rgba(129,140,248,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📈</div>
+    </div>
+    <div class="text-4xl font-bold" style="color:#818CF8;">{{ week_count }}</div>
+    <div class="text-xs mt-2" style="color:rgba(226,232,240,0.4);">Total bookings</div>
+  </div>
+  <div class="stat-card">
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-xs uppercase tracking-widest" style="color:rgba(226,232,240,0.4);">Revenue (Completed)</div>
+      <div style="width:36px;height:36px;background:rgba(52,211,153,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">💰</div>
+    </div>
+    <div class="text-4xl font-bold" style="color:#34D399;">₹{{ revenue }}</div>
+    <div class="text-xs mt-2" style="color:rgba(226,232,240,0.4);">From completed services</div>
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <a href="{% url 'appointments' %}" class="card p-4 text-center hover:scale-105 transition-transform">
+    <div class="text-2xl mb-2">📅</div>
+    <div class="text-sm font-semibold">Appointments</div>
+  </a>
+  <a href="{% url 'analytics' %}" class="card p-4 text-center hover:scale-105 transition-transform">
+    <div class="text-2xl mb-2">📊</div>
+    <div class="text-sm font-semibold">Analytics</div>
+  </a>
+  <a href="{% url 'reviews_list' %}" class="card p-4 text-center hover:scale-105 transition-transform">
+    <div class="text-2xl mb-2">⭐</div>
+    <div class="text-sm font-semibold">Reviews</div>
+  </a>
+  <a href="{% url 'waiting_list_manage' %}" class="card p-4 text-center hover:scale-105 transition-transform">
+    <div class="text-2xl mb-2">📋</div>
+    <div class="text-sm font-semibold">Waiting List</div>
+  </a>
+</div>
+
+<!-- Recent bookings -->
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-bold text-lg gradient-text">Recent Bookings</h2>
+    <a href="{% url 'analytics' %}" class="text-sm" style="color:#C084FC;">View Analytics →</a>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="card overflow-hidden hidden sm:block">
+    <div class="table-responsive">
+      <table class="w-full text-sm" style="min-width:520px;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(45,45,78,0.8);">
+            <th class="p-3 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Customer</th>
+            <th class="p-3 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Service</th>
+            <th class="p-3 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Staff</th>
+            <th class="p-3 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">When</th>
+            <th class="p-3 text-left text-xs uppercase tracking-wider" style="color:rgba(226,232,240,0.4);">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in recent %}
+          <tr class="table-row">
+            <td class="p-3 font-medium">{{ a.customer_name }}</td>
+            <td class="p-3" style="color:rgba(226,232,240,0.6);">{{ a.service.name }}</td>
+            <td class="p-3" style="color:rgba(226,232,240,0.6);">{{ a.staff.name }}</td>
+            <td class="p-3 text-xs" style="color:#818CF8;">{{ a.date }} {{ a.start_time|time:"H:i" }}</td>
+            <td class="p-3"><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="p-8 text-center" style="color:rgba(226,232,240,0.3);">No bookings yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mobile card list -->
+  <div class="sm:hidden space-y-3">
+    {% for a in recent %}
+    <div class="card p-4">
+      <div class="flex justify-between items-start mb-2">
+        <div class="font-semibold">{{ a.customer_name }}</div>
+        <span class="badge badge-{{ a.status }}">{{ a.status }}</span>
+      </div>
+      <div class="text-xs space-y-1" style="color:rgba(226,232,240,0.6);">
+        <div>✂️ {{ a.service.name }} · 👤 {{ a.staff.name }}</div>
+        <div style="color:#818CF8;">📅 {{ a.date }} {{ a.start_time|time:"H:i" }}</div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="card p-8 text-center" style="color:rgba(226,232,240,0.3);">No bookings yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Leave a Review — {{ tenant.name }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div style="width:64px;height:64px;background:linear-gradient(135deg,#FBBF24,#F59E0B);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">⭐</div>
+    <h1 class="text-3xl font-bold gradient-text mb-1">Leave a Review</h1>
+    <p class="text-sm" style="color:rgba(226,232,240,0.5);">{{ tenant.name }}</p>
+  </div>
+
+  <!-- Appointment summary -->
+  <div class="card p-5 mb-6" style="border-color:rgba(192,132,252,0.3);">
+    <div class="flex items-center gap-3 mb-3">
+      <div style="width:40px;height:40px;background:linear-gradient(135deg,#C084FC,#818CF8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">✂️</div>
+      <div>
+        <div class="font-semibold">{{ appt.service.name }}</div>
+        <div class="text-xs" style="color:rgba(226,232,240,0.5);">with {{ appt.staff.name }} · {{ appt.date }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review form -->
+  <div class="card p-6">
+    <form method="post">{% csrf_token %}
+
+      <!-- Star rating -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold mb-3" style="color:rgba(226,232,240,0.8);">Your Rating</label>
+        <div class="flex gap-2 flex-wrap">
+          {% for choice in form.rating %}
+          <label class="cursor-pointer">
+            <input type="radio" name="rating" value="{{ choice.data.value }}" class="sr-only peer" {% if choice.data.selected %}checked{% endif %}>
+            <span class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 border peer-checked:border-[#FBBF24] peer-checked:bg-[rgba(251,191,36,0.15)] peer-checked:text-[#FBBF24] hover:border-[rgba(251,191,36,0.4)]"
+                  style="border:1px solid rgba(45,45,78,0.9);color:rgba(226,232,240,0.6);">
+              {% if choice.data.value == '1' %}⭐ 1 – Poor
+              {% elif choice.data.value == '2' %}⭐⭐ 2 – Fair
+              {% elif choice.data.value == '3' %}⭐⭐⭐ 3 – Good
+              {% elif choice.data.value == '4' %}⭐⭐⭐⭐ 4 – Great
+              {% elif choice.data.value == '5' %}⭐⭐⭐⭐⭐ 5 – Excellent
+              {% else %}{{ choice.choice_label }}
+              {% endif %}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+        {% if form.rating.errors %}<p class="text-xs mt-2" style="color:#F87171;">{{ form.rating.errors|join:", " }}</p>{% endif %}
+      </div>
+
+      <!-- Comment -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold mb-2" style="color:rgba(226,232,240,0.8);">Your Review <span style="color:rgba(226,232,240,0.4);font-weight:400;">(optional)</span></label>
+        <textarea name="comment" rows="4" placeholder="Tell us about your experience — what did you love? Any suggestions?"
+          class="form-input resize-none" style="background:rgba(15,15,26,0.6);color:#E2E8F0;border:1px solid rgba(45,45,78,0.9);border-radius:10px;padding:12px 14px;width:100%;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#C084FC'" onblur="this.style.borderColor='rgba(45,45,78,0.9)'">{{ form.comment.value|default:'' }}</textarea>
+      </div>
+
+      <button type="submit" class="btn-primary w-full py-3" style="display:block;text-align:center;font-size:1rem;">
+        ✨ Submit Review
+      </button>
+    </form>
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="/{{ tenant.slug }}/book/" style="color:rgba(226,232,240,0.3);font-size:0.75rem;" class="hover:underline">← Back to booking</a>
+  </div>
+</div>
+{% endblock %}

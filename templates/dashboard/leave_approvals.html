@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Leave Approvals — SlotEase{% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap items-start justify-between gap-3 mb-8 animate-slide-up">
+  <div>
+    <h1 class="text-3xl font-bold gradient-text">🏖️ Leave Approvals</h1>
+    <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">Review and approve staff leave requests</p>
+  </div>
+  {% with pending=leave_requests|length %}
+  <div class="badge badge-pending">{{ pending }} request{{ pending|pluralize }}</div>
+  {% endwith %}
+</div>
+
+<div class="space-y-4">
+  {% for lr in leave_requests %}
+  <div class="card p-6 animate-slide-up">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div style="width:48px;height:48px;background:linear-gradient(135deg,rgba(192,132,252,0.2),rgba(129,140,248,0.2));border:1px solid rgba(192,132,252,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
+        <div>
+          <div class="font-bold text-lg">{{ lr.staff.name }}</div>
+          <div class="flex items-center gap-2 mt-1 text-sm" style="color:#818CF8;">
+            📅 {{ lr.start_date }} → {{ lr.end_date }}
+          </div>
+          {% if lr.reason %}
+          <div class="mt-2 text-sm" style="color:rgba(226,232,240,0.5);">{{ lr.reason }}</div>
+          {% endif %}
+          <div class="text-xs mt-2" style="color:rgba(226,232,240,0.3);">Submitted {{ lr.created_at|date:"M j, Y" }}</div>
+        </div>
+      </div>
+      <div class="flex flex-col items-end gap-3">
+        <span class="badge badge-{{ lr.status }}">{{ lr.status }}</span>
+        {% if lr.status == 'pending' %}
+        <form method="post" action="{% url 'leave_approval' lr.pk %}" class="flex gap-2">{% csrf_token %}
+          <button name="status" value="approved" class="btn-success cursor-pointer">✓ Approve</button>
+          <button name="status" value="rejected" class="btn-danger cursor-pointer">✗ Reject</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="card p-16 text-center">
+    <div class="text-5xl mb-4">🎉</div>
+    <div class="text-xl font-bold gradient-text mb-2">All clear!</div>
+    <div class="text-sm" style="color:rgba(226,232,240,0.3);">No pending leave requests from staff.</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

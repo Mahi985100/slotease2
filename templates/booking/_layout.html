@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold gradient-text">{{ tenant.name }}</h1>
+    <p class="text-sm mt-1" style="color:rgba(226,232,240,0.4);">Book an appointment</p>
+  </div>
+  <!-- Progress steps -->
+  <div class="flex flex-wrap gap-2 text-xs mb-8">
+    <span class="px-3 py-1.5 rounded-lg font-semibold {% if step >= '1' %}badge-active{% endif %}" style="{% if step >= '1' %}background:linear-gradient(135deg,#C084FC,#818CF8);color:white;{% else %}background:rgba(45,45,78,0.6);color:rgba(226,232,240,0.3);{% endif %}">1. Service</span>
+    <span style="color:rgba(226,232,240,0.2);line-height:28px;">→</span>
+    <span class="px-3 py-1.5 rounded-lg font-semibold" style="{% if step >= '2' %}background:linear-gradient(135deg,#C084FC,#818CF8);color:white;{% else %}background:rgba(45,45,78,0.6);color:rgba(226,232,240,0.3);{% endif %}">2. Staff</span>
+    <span style="color:rgba(226,232,240,0.2);line-height:28px;">→</span>
+    <span class="px-3 py-1.5 rounded-lg font-semibold" style="{% if step >= '3' %}background:linear-gradient(135deg,#C084FC,#818CF8);color:white;{% else %}background:rgba(45,45,78,0.6);color:rgba(226,232,240,0.3);{% endif %}">3. Date & Time</span>
+    <span style="color:rgba(226,232,240,0.2);line-height:28px;">→</span>
+    <span class="px-3 py-1.5 rounded-lg font-semibold" style="{% if step >= '4' %}background:linear-gradient(135deg,#C084FC,#818CF8);color:white;{% else %}background:rgba(45,45,78,0.6);color:rgba(226,232,240,0.3);{% endif %}">4. Your Info</span>
+  </div>
+  <div class="card p-4 sm:p-6">
+    {% block booking_content %}{% block inner %}{% endblock %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

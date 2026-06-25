@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Review Submitted — {{ tenant.name }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto text-center">
+
+  <div style="width:80px;height:80px;background:linear-gradient(135deg,#34D399,#059669);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 24px;">🎉</div>
+  <h1 class="text-3xl font-bold gradient-text mb-2">Thank You!</h1>
+  <p class="text-sm mb-8" style="color:rgba(226,232,240,0.5);">Your review has been submitted for {{ tenant.name }}</p>
+
+  <!-- The review -->
+  <div class="card p-6 text-left mb-6" style="border-color:rgba(251,191,36,0.3);">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="font-semibold">{{ appt.service.name }}</div>
+        <div class="text-xs mt-1" style="color:rgba(226,232,240,0.4);">with {{ appt.staff.name }} · {{ appt.date }}</div>
+      </div>
+      <div class="text-2xl font-bold" style="color:#FBBF24;">
+        {{ appt.review.rating }}★
+      </div>
+    </div>
+    {% if appt.review.comment %}
+    <p class="text-sm" style="color:rgba(226,232,240,0.7);">{{ appt.review.comment }}</p>
+    {% endif %}
+    {% if appt.review.owner_reply %}
+    <div class="mt-4 pt-4" style="border-top:1px solid rgba(45,45,78,0.6);">
+      <div class="text-xs font-semibold mb-1" style="color:#C084FC;">💬 {{ tenant.name }} replied:</div>
+      <p class="text-sm" style="color:rgba(226,232,240,0.6);">{{ appt.review.owner_reply }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <a href="/{{ tenant.slug }}/book/" class="btn-primary" style="padding:12px 28px;display:inline-block;">Book Again</a>
+</div>
+{% endblock %}

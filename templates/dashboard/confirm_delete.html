@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<div class="max-w-md bg-[#1A1A2E] border border-[#2D2D4E] rounded-lg p-6">
+<h1 class="text-xl font-bold mb-3">Delete {{ kind }}</h1>
+<p>Are you sure you want to delete <strong>{{ obj }}</strong>?</p>
+<form method="post" class="mt-4">{% csrf_token %}
+<button class="bg-red-600 text-white px-4 py-2 rounded-lg">Yes, delete</button>
+<a href="javascript:history.back()" class="ml-2 text-slate-300">Cancel</a>
+</form></div>{% endblock %}
